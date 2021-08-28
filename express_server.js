@@ -10,10 +10,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 function generateRandomString() {
-  var result = '';
-  var char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charlen = char.length;
-  for (var i = 0; i < 6; i++) {
+  let result = '';
+  let char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charlen = char.length;
+  for (let i = 0; i < 6; i++) {
     result += char.charAt(Math.floor(Math.random() * charlen));
   }
   return result;
@@ -35,6 +35,7 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+// post request to generate random shortUrl
 app.post("/urls", (req, res) => {
 
   let longUrl = req.body.longURL
@@ -42,16 +43,23 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortUrl] = longUrl
   res.redirect("/urls/" + shortUrl)
 });
+// post request to delete urls
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const urlDelete = req.params.shortURL;
+  delete urlDatabase[urlDelete];
+  res.redirect('/urls');
+
+});
 
 app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
 
 });
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: "http://www.lighthouselabs.ca" };
+  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.shortURL };
   res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tinyapp listening on port ${PORT}!`);
 });
