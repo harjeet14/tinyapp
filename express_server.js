@@ -35,7 +35,7 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
-// post request to generate random shortUrl
+// post request to generate random shortUrl      
 app.post("/urls", (req, res) => {
 
   let longUrl = req.body.longURL
@@ -43,20 +43,34 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortUrl] = longUrl
   res.redirect("/urls/" + shortUrl)
 });
+// POST request to update resource
+app.post("/urls/:id", (req, res) => {
+  let newlongUrl = req.body.longURL
+  let shorturl = req.params.id
+  urlDatabase[shorturl] = newlongUrl
+  res.redirect('/urls/');
+});
+// GET api to redirect to the Edit page
+app.get("/urls/edit/:id", (req, res) => {
+  let shorturl = req.params.id
+  console.log(shorturl);
+  res.redirect("/urls/" + shorturl);
+});
+
 // post request to delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const urlDelete = req.params.shortURL;
   delete urlDatabase[urlDelete];
   res.redirect('/urls');
-
 });
+
 
 app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
 
 });
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.shortURL };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
