@@ -25,30 +25,43 @@ function generateRandomString() {
   return result;
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const username = req.cookies['username']; //set cookie
+  const templateVars = { username };
+  res.render("urls_new", templateVars);
 });
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const username = req.cookies["username"]
+  const templateVars = { urls: urlDatabase, username };
   res.render("urls_index", templateVars);
 });
+
+//post request for username login
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username)
+  console.log(req.body.username)
+  res.redirect("/urls");
+});
+
+//post request for logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
+
 // post request to generate random shortUrl      
 app.post("/urls", (req, res) => {
-
   let longUrl = req.body.longURL
   let shortUrl = generateRandomString()
   urlDatabase[shortUrl] = longUrl
   res.redirect("/urls/" + shortUrl)
 });
+
 // POST request to update resource
 app.post("/urls/:id", (req, res) => {
   let newlongUrl = req.body.longURL
@@ -56,6 +69,7 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[shorturl] = newlongUrl
   res.redirect('/urls/');
 });
+
 // GET api to redirect to the Edit page
 app.get("/urls/edit/:id", (req, res) => {
   let shorturl = req.params.id
@@ -70,13 +84,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
-
 app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
-
 });
+
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const username = req.cookies["username"];
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username };
   res.render("urls_show", templateVars);
 });
 
