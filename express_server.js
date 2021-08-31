@@ -8,11 +8,14 @@ const bodyParser = require("body-parser");//
 app.use(morgan('dev'));
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');    // set ejs as view engine
+app.set('view engine', 'ejs');    // tells ejs to
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+const users = {
+
 };
 
 function generateRandomString() {
@@ -30,27 +33,27 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const username = req.cookies['username']; //set cookie
-  const templateVars = { username };
+  const user_id = req.cookies['user_id']; //get cookie
+  const templateVars = { user: users[user_id] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { urls: urlDatabase, username };
+  const user_id = req.cookies["user_id"];
+  const templateVars = { urls: urlDatabase, user: users[user_id] }
   res.render("urls_index", templateVars);
 });
 
-//post request for username login
+//post request for username login 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username)
+  res.cookie("user_id", req.body.username)
   console.log(req.body.username)
   res.redirect("/urls");
 });
 
 //post request for logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -91,6 +94,17 @@ app.post("/register", (req, res) => {
   const inputName = req.body.name;
   const inputEmail = req.body.email;
   const inputPassword = req.body.password;
+  const randomUserId = generateRandomString();
+
+  // generate id . lets assume that is userId
+  users[randomUserId] = {
+    id: randomUserId,
+    email: inputEmail,
+    password: inputPassword
+  }
+  console.log(users);
+  res.cookie('user_id', randomUserId)
+  res.redirect('/urls')
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -98,8 +112,8 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username };
+  const user_id = req.cookies["user_id"];
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[user_id] };
   res.render("urls_show", templateVars);
 });
 
