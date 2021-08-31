@@ -36,7 +36,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const username = req.cookies["username"]
+  const username = req.cookies["username"];
   const templateVars = { urls: urlDatabase, username };
   res.render("urls_index", templateVars);
 });
@@ -56,23 +56,23 @@ app.post("/logout", (req, res) => {
 
 // post request to generate random shortUrl      
 app.post("/urls", (req, res) => {
-  let longUrl = req.body.longURL
-  let shortUrl = generateRandomString()
-  urlDatabase[shortUrl] = longUrl
-  res.redirect("/urls/" + shortUrl)
+  let longUrl = req.body.longURL;
+  let shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = longUrl;
+  res.redirect("/urls/" + shortUrl);
 });
 
 // POST request to update resource
 app.post("/urls/:id", (req, res) => {
-  let newlongUrl = req.body.longURL
-  let shorturl = req.params.id
-  urlDatabase[shorturl] = newlongUrl
+  let newlongUrl = req.body.longURL;
+  let shorturl = req.params.id;
+  urlDatabase[shorturl] = newlongUrl;
   res.redirect('/urls/');
 });
 
 // GET api to redirect to the Edit page
 app.get("/urls/edit/:id", (req, res) => {
-  let shorturl = req.params.id
+  let shorturl = req.params.id;
   console.log(shorturl);
   res.redirect("/urls/" + shorturl);
 });
@@ -83,9 +83,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[urlDelete];
   res.redirect('/urls');
 });
+//show form to login
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+app.post("/register", (req, res) => {
+  const inputName = req.body.name;
+  const inputEmail = req.body.email;
+  const inputPassword = req.body.password;
+});
 
 app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL])
+  res.redirect(urlDatabase[req.params.shortURL]);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
