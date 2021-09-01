@@ -30,7 +30,7 @@ function generateRandomString() {
 
 const getUserByEmail = function (email) {
   for (const user in users) {
-    if (user.email === email) {
+    if (users[user].email === email) {
       return user;
     }
   }
@@ -54,18 +54,29 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 app.get("/login", (req, res) => {
+  const user_id = req.cookies["user_id"];
   const templateVars = { urls: urlDatabase, user: users[user_id] }
   res.render("login", templateVars);
 })
 //post request for username login 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body)
-  console.log(req.body)
-  res.redirect("/login");
+  const user = getUserByEmail(req.body.email);
+  if (!user) {
+    res.statusCode = 403;
+    res.send("User doesn't exist")
+    return;
+  } else if (user.password !== req.body.password) {
+    res.statusCode = 403;
+    res.send("password Incorrect");
+    return;
+  }
+  res.cookie("user_id");
+  res.redirect("/urls");
 });
 
 //post request for logout
 app.post("/logout", (req, res) => {
+
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
@@ -113,7 +124,11 @@ app.post("/register", (req, res) => {
     res.send(" Incorrect username and password");
     return;
   };
-  if (!users) { res.status(401).res.send("Email doesn't exist") }
+  if (getUserByEmail(inputEmail)) {
+    res.status(400);
+    res.send("Email already exist")
+    return;
+  }
   if (users[inputEmail]) {
     console.log("Email already exist");
     res.send("Email already exist");
