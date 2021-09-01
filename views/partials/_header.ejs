@@ -18,12 +18,11 @@
           </form>
           <% } else{ %>
             <form action="/login" method="POST">
-              <input class="card-text" type="text" name="username" placeholder="username"
-                style="width: 300px; margin: 1em">
-
-              <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <% } %>
+              <button>Login</button>
+              <form method="GET" action="/register">
+                <button>Register</button>
+              </form>
+              <% } %>
       </div>
     </div>
   </nav>

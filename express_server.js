@@ -43,12 +43,15 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[user_id] }
   res.render("urls_index", templateVars);
 });
-
+app.get("/login", (req, res) => {
+  const templateVars = { urls: urlDatabase, user: users[user_id] }
+  res.render("/login", templateVars);
+})
 //post request for username login 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.username)
-  console.log(req.body.username)
-  res.redirect("/urls");
+  res.cookie("user_id", req.body)
+  console.log(req.body)
+  res.redirect("/login");
 });
 
 //post request for logout
@@ -95,16 +98,28 @@ app.post("/register", (req, res) => {
   const inputEmail = req.body.email;
   const inputPassword = req.body.password;
   const randomUserId = generateRandomString();
+  if (!inputEmail || !inputPassword) {
+    res.statusCode = 400;
+    res.send(" Incorrect username and password");
+    return;
+  };
+  if (!users) { res.status(401).res.send("Email doesn't exist") }
+  if (users[inputEmail]) {
+    console.log("Email already exist");
+    res.send("Email already exist");
+    return
+  } else {
 
-  // generate id . lets assume that is userId
-  users[randomUserId] = {
-    id: randomUserId,
-    email: inputEmail,
-    password: inputPassword
+    // generate id . lets assume that is userId
+    users[randomUserId] = {
+      id: randomUserId,
+      email: inputEmail,
+      password: inputPassword
+    }
+    console.log(users);
+    res.cookie('user_id', randomUserId)
+    res.redirect('/urls')
   }
-  console.log(users);
-  res.cookie('user_id', randomUserId)
-  res.redirect('/urls')
 });
 
 app.get("/u/:shortURL", (req, res) => {
