@@ -14,6 +14,7 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 const users = {
 
 };
@@ -28,13 +29,13 @@ function generateRandomString() {
   return result;
 };
 
+//create email lookup helper function
 const getUserByEmail = function (email) {
   for (const user in users) {
     if (users[user].email === email) {
       return users[user];
     }
   }
-
   return null;
 }
 
@@ -53,12 +54,13 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[user_id] }
   res.render("urls_index", templateVars);
 });
+
 app.get("/login", (req, res) => {
   const user_id = req.cookies["user_id"];
   const templateVars = { urls: urlDatabase, user: users[user_id] }
   res.render("login", templateVars);
 })
-//post request for username login 
+//post request for  login 
 app.post("/login", (req, res) => {
 
   let inputEmail = req.body.email;
@@ -86,7 +88,6 @@ app.post("/login", (req, res) => {
 
 //post request for logout
 app.post("/logout", (req, res) => {
-
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
@@ -120,10 +121,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[urlDelete];
   res.redirect('/urls');
 });
+
 //show form to login
 app.get("/register", (req, res) => {
   res.render("register");
 });
+
 app.post("/register", (req, res) => {
   const inputName = req.body.name;
   const inputEmail = req.body.email;
