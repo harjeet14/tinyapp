@@ -31,7 +31,7 @@ function generateRandomString() {
 const getUserByEmail = function (email) {
   for (const user in users) {
     if (users[user].email === email) {
-      return user;
+      return users[user];
     }
   }
 
@@ -60,17 +60,27 @@ app.get("/login", (req, res) => {
 })
 //post request for username login 
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+
+  let inputEmail = req.body.email;
+  let inputPassword = req.body.password;
+
+  if (!inputEmail || !inputPassword) {
+    res.statusCode = 403;
+    res.send("Email and Password should not be empty")
+    return;
+  }
+  const user = getUserByEmail(inputEmail);
+
   if (!user) {
     res.statusCode = 403;
     res.send("User doesn't exist")
     return;
-  } else if (user.password !== req.body.password) {
+  } else if (user.password !== inputPassword) {
     res.statusCode = 403;
     res.send("password Incorrect");
     return;
   }
-  res.cookie("user_id");
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
