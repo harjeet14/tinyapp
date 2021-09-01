@@ -28,6 +28,16 @@ function generateRandomString() {
   return result;
 };
 
+const getUserByEmail = function (email) {
+  for (const user in users) {
+    if (user.email === email) {
+      return user;
+    }
+  }
+
+  return null;
+}
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -45,7 +55,7 @@ app.get("/urls", (req, res) => {
 });
 app.get("/login", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[user_id] }
-  res.render("/login", templateVars);
+  res.render("login", templateVars);
 })
 //post request for username login 
 app.post("/login", (req, res) => {
