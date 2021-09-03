@@ -3,7 +3,9 @@ const express = require("express");
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan'); //middleware to log HTTP requests and errors
 const app = express();
-const bodyParser = require("body-parser");//
+const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
+
 
 app.use(morgan('dev'));
 app.use(cookieParser())
@@ -39,7 +41,7 @@ const getUserByEmail = function (email) {
   }
   return null;
 }
-// func takes urlDatabase and userId as its arguments
+// function  takes urlDatabase and userId as its arguments
 // it returns a subset of urldatabase which matches the userId 
 // if no userid is matched return null
 const getUrlDatabaseFromUserId = function (urlDatabase, userId) {
@@ -182,7 +184,6 @@ app.post("/register", (req, res) => {
     res.send("Email already exist");
     return
   } else {
-
     // generate id . lets assume that is userId
     users[randomUserId] = {
       id: randomUserId,
