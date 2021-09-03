@@ -113,7 +113,7 @@ app.post("/login", (req, res) => {
     res.statusCode = 403;
     res.send("User doesn't exist")
     return;
-  } else if (user.password !== inputPassword) {
+  } else if (!bcrypt.compareSync(inputPassword, user.password)) {
     res.statusCode = 403;
     res.send("password Incorrect");
     return;
@@ -184,11 +184,12 @@ app.post("/register", (req, res) => {
     res.send("Email already exist");
     return
   } else {
+    const hashedPassword = bcrypt.hashSync(inputPassword, 10);
     // generate id . lets assume that is userId
     users[randomUserId] = {
       id: randomUserId,
       email: inputEmail,
-      password: inputPassword
+      password: hashedPassword
     }
     console.log(users);
     res.cookie('user_id', randomUserId)
