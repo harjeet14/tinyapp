@@ -18,9 +18,7 @@ const urlDatabase = {
   // "9sm5xK": "http://www.google.com"
 };
 
-const users = {
-
-};
+const users = {};
 
 function generateRandomString() {
   let result = '';
@@ -41,6 +39,24 @@ const getUserByEmail = function (email) {
   }
   return null;
 }
+// func takes urlDatabase and userId as its arguments
+// it returns a subset of urldatabase which matches the userId 
+// if no userid is matched return null
+const getUrlDatabaseFromUserId = function (urlDatabase, userId) {
+  let returnUrlObject = {}
+  for (let urls in urlDatabase) {
+    if (urlDatabase[urls].userID === userId) {
+      returnUrlObject[urls] = {}
+      returnUrlObject[urls].longURL = urlDatabase[urls].longURL
+      returnUrlObject[urls].userID = urlDatabase[urls].userID
+    }
+  }
+  if (Object.keys(returnUrlObject).length === 0) {
+    return null
+  } else {
+    return returnUrlObject;
+  }
+}
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -59,10 +75,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"];
-  const templateVars = { urls: urlDatabase, user: users[user_id] }
-  res.render("urls_index", templateVars);
+  if (req.cookies["user_id"]) {
+    const user_id = req.cookies["user_id"];
+    let urls_userid = getUrlDatabaseFromUserId(urlDatabase, user_id)
+    const templateVars = { urls: urls_userid, user: users[user_id] };
+    res.render("urls_index", templateVars);
+  } else {
+    const user_id = req.cookies["user_id"];
+    const templateVars = { user: users[user_id] };
+    res.render("redirect_login", templateVars);
+  }
+
 });
+
 
 app.get("/login", (req, res) => {
   const user_id = req.cookies["user_id"];
