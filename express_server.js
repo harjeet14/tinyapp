@@ -157,6 +157,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
+// post request to delete urls
+app.post("/urls/:shortURL/edit", (req, res) => {
+  let urlEditShortUrl = req.params.shortURL;
+  let urlEditLongUrl = req.body.longURL;
+  let existingUrl = urlDatabase[urlEditShortUrl];
+  existingUrl.longURL = urlEditLongUrl;
+  urlDatabase[urlEditShortUrl] = existingUrl;
+  res.redirect('/urls/');
+});
+
 //show form to login
 app.get("/register", (req, res) => {
   res.render("register");
