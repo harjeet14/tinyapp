@@ -1,11 +1,13 @@
 const PORT = 8080;         // default port 8080
+
 const express = require("express");
 const morgan = require('morgan'); //middleware to log HTTP requests and errors
 const app = express();
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
+const saltround = 10;
 const cookieSession = require('cookie-session')
-
+const { getUserByEmail, generateRandomString, getUrlDatabaseFromUserId } = require('./helper.js')
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,43 +28,36 @@ const urlDatabase = {
 
 const users = {};
 
-function generateRandomString() {
-  let result = '';
-  let char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let charlen = char.length;
-  for (let i = 0; i < 6; i++) {
-    result += char.charAt(Math.floor(Math.random() * charlen));
-  }
-  return result;
-};
+// function generateRandomString() {
+//   let result = '';
+//   let char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   let charlen = char.length;
+//   for (let i = 0; i < 6; i++) {
+//     result += char.charAt(Math.floor(Math.random() * charlen));
+//   }
+//   return result;
+// };
 
 //create email lookup helper function
-const getUserByEmail = function (email) {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-  return null;
-}
+
 // function  takes urlDatabase and userId as its arguments
 // it returns a subset of urldatabase which matches the userId 
 // if no userid is matched return null
-const getUrlDatabaseFromUserId = function (urlDatabase, userId) {
-  let returnUrlObject = {}
-  for (let urls in urlDatabase) {
-    if (urlDatabase[urls].userID === userId) {
-      returnUrlObject[urls] = {}
-      returnUrlObject[urls].longURL = urlDatabase[urls].longURL
-      returnUrlObject[urls].userID = urlDatabase[urls].userID
-    }
-  }
-  if (Object.keys(returnUrlObject).length === 0) {
-    return null
-  } else {
-    return returnUrlObject;
-  }
-}
+// const getUrlDatabaseFromUserId = function (urlDatabase, userId) {
+//   let returnUrlObject = {}
+//   for (let urls in urlDatabase) {
+//     if (urlDatabase[urls].userID === userId) {
+//       returnUrlObject[urls] = {}
+//       returnUrlObject[urls].longURL = urlDatabase[urls].longURL
+//       returnUrlObject[urls].userID = urlDatabase[urls].userID
+//     }
+//   }
+//   if (Object.keys(returnUrlObject).length === 0) {
+//     return null
+//   } else {
+//     return returnUrlObject;
+//   }
+// }
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -111,7 +106,7 @@ app.post("/login", (req, res) => {
     res.send("Email and Password should not be empty")
     return;
   }
-  const user = getUserByEmail(inputEmail);
+  const user = getUserByEmail(inputEmail, users);
 
   if (!user) {
     res.statusCode = 403;
@@ -152,7 +147,6 @@ app.post("/urls/:id", (req, res) => {
 // GET api to redirect to the Edit page
 app.get("/urls/edit/:id", (req, res) => {
   let shorturl = req.params.id;
-  console.log(shorturl);
   res.redirect("/urls/" + shorturl);
 });
 
