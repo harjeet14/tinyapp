@@ -5,7 +5,7 @@ const morgan = require('morgan'); //middleware to log HTTP requests and errors
 const app = express();
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
-const saltround = 10;
+const saltrounds = 10;
 const cookieSession = require('cookie-session')
 const { getUserByEmail, generateRandomString, getUrlDatabaseFromUserId } = require('./helper.js')
 
@@ -192,7 +192,7 @@ app.post("/register", (req, res) => {
     res.send("Email already exist");
     return
   } else {
-    const hashedPassword = bcrypt.hashSync(inputPassword, 10);
+    const hashedPassword = bcrypt.hashSync(inputPassword, saltrounds);
     // generate id . lets assume that is userId
     users[randomUserId] = {
       id: randomUserId,
