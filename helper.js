@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 
+
+
 //create email lookup helper function
 const getUserByEmail = function (email, users) {
   for (const user in users) {

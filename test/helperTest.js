@@ -41,3 +41,21 @@ describe('getUserByEmail', function () {
     assert.equal(user, expectedOutput);
   })
 });
+describe('getUrlDatabaseFromUserId  ', function () {
+
+  it('should return an object of url information specific to the given user ID', function () {
+    const specificUrls = getUrlDatabaseFromUserId(urlDatabase, 'userRandomID');
+    const expectedOutput = {
+      b6UTxQ: { longURL: 'https://www.tsn.ca', userID: 'userRandomID' },
+    };
+    assert.deepEqual(specificUrls, expectedOutput);
+  });
+
+  it('should return an empty object if no urls exist for a given user ID', function () {
+    const noSpecificUrls = getUrlDatabaseFromUserId(urlDatabase, 'fakeUser');
+    const expectedOutput = null;
+    assert.deepEqual(noSpecificUrls, expectedOutput);
+  });
+});
+
+
