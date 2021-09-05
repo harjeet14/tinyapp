@@ -39,7 +39,7 @@ describe('getUserByEmail', function () {
     const user = getUserByEmail("user@example.com", testUsers).id;
     const expectedOutput = "userRandomID";
     assert.equal(user, expectedOutput);
-  })
+  });
 });
 describe('getUrlDatabaseFromUserId  ', function () {
 
