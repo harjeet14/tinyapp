@@ -31,8 +31,8 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 app.post("/login", (req, res) => { //post request for  login
-  let inputEmail = req.body.email;
-  let inputPassword = req.body.password;
+  const inputEmail = req.body.email;
+  const inputPassword = req.body.password;
 
   if (!inputEmail || !inputPassword) {
     res.statusCode = 403;
@@ -115,7 +115,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
   if (req.session.user_id) {
     const user_id = req.session.user_id;
-    let urls_userid = getUrlDatabaseFromUserId(urlDatabase, user_id);
+    const urls_userid = getUrlDatabaseFromUserId(urlDatabase, user_id);
     const templateVars = { urls: urls_userid, user: users[user_id] };
     res.render("urls_index", templateVars);
   } else {
@@ -128,8 +128,8 @@ app.get("/urls", (req, res) => {
 
 // post request to generate random shortUrl
 app.post("/urls", (req, res) => {
-  let longUrl = req.body.longURL;
-  let shortUrl = generateRandomString();
+  const longUrl = req.body.longURL;
+  const shortUrl = generateRandomString();
   const user_id = req.session.user_id;
   urlDatabase[shortUrl] = { longURL: longUrl, userID: user_id };
   res.redirect("/urls/" + shortUrl);
@@ -137,15 +137,15 @@ app.post("/urls", (req, res) => {
 
 // POST request to update resource
 app.post("/urls/:id", (req, res) => {
-  let newlongUrl = req.body.longURL;
-  let shorturl = req.params.id;
+  const newlongUrl = req.body.longURL;
+  const shorturl = req.params.id;
   urlDatabase[shorturl] = newlongUrl;
   res.redirect('/urls/');
 });
 
 // GET api to redirect to the Edit page
 app.get("/urls/edit/:id", (req, res) => {
-  let shorturl = req.params.id;
+  const shorturl = req.params.id;
   res.redirect("/urls/" + shorturl);
 });
 
@@ -158,9 +158,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // post request to delete urls
 app.post("/urls/:shortURL/edit", (req, res) => {
-  let urlEditShortUrl = req.params.shortURL;
-  let urlEditLongUrl = req.body.longURL;
-  let existingUrl = urlDatabase[urlEditShortUrl];
+  const urlEditShortUrl = req.params.shortURL;
+  const urlEditLongUrl = req.body.longURL;
+  const existingUrl = urlDatabase[urlEditShortUrl];
   existingUrl.longURL = urlEditLongUrl;
   urlDatabase[urlEditShortUrl] = existingUrl;
   res.redirect('/urls/');

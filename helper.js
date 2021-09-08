@@ -3,7 +3,7 @@
 
 
 //create email lookup helper function
-const getUserByEmail = function(email, users) {
+const getUserByEmail = function (email, users) {
   for (const user in users) {
     if (users[user].email === email) {
       return users[user];
@@ -12,19 +12,19 @@ const getUserByEmail = function(email, users) {
   return null;
 };
 
-const generateRandomString = function() {
+const generateRandomString = function () {
   let result = '';
-  let char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let charlen = char.length;
+  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charlen = char.length;
   for (let i = 0; i < 6; i++) {
     result += char.charAt(Math.floor(Math.random() * charlen));
   }
   return result;
 };
 
-const getUrlDatabaseFromUserId = function(urlDatabase, userId) {
-  let returnUrlObject = {};
-  for (let urls in urlDatabase) {
+const getUrlDatabaseFromUserId = function (urlDatabase, userId) {
+  const returnUrlObject = {};
+  for (const urls in urlDatabase) {
     if (urlDatabase[urls].userID === userId) {
       returnUrlObject[urls] = {};
       returnUrlObject[urls].longURL = urlDatabase[urls].longURL;
