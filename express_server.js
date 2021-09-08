@@ -172,8 +172,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[user_id] };
-  res.render("urls_show", templateVars);
+  if (user_id) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[user_id] };
+    res.render("urls_show", templateVars);
+  } else {
+    res.redirect('/urls/');
+  }
 });
 
 app.listen(PORT, () => {
