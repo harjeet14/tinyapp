@@ -60,7 +60,7 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-//show form to login
+//show form to register
 app.get("/register", (req, res) => {
   res.render("register");
 });
@@ -74,13 +74,12 @@ app.post("/register", (req, res) => {
     res.send(" Incorrect username and password");
     return;
   }
-  if (getUserByEmail(inputEmail)) {
+  if (getUserByEmail(inputEmail, users)) {
     res.status(400);
     res.send("Email already exist");
     return;
   }
   if (users[inputEmail]) {
-    console.log("Email already exist");
     res.send("Email already exist");
     return;
   } else {
@@ -103,13 +102,16 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const user_id = req.session.user_id; //get cookie
-  console.log("user_id: " + user_id);
   if (!user_id) {
     res.redirect('/login');
   } else {
     const templateVars = { user: users[user_id] };
     res.render("urls_new", templateVars);
   }
+});
+
+app.get("/", (req, res) => {
+  res.redirect('/urls/');
 });
 
 app.get("/urls", (req, res) => {
@@ -128,57 +130,79 @@ app.get("/urls", (req, res) => {
 
 // post request to generate random shortUrl
 app.post("/urls", (req, res) => {
-  const longUrl = req.body.longURL;
-  const shortUrl = generateRandomString();
-  const user_id = req.session.user_id;
-  urlDatabase[shortUrl] = { longURL: longUrl, userID: user_id };
-  res.redirect("/urls/" + shortUrl);
-});
-
-// POST request to update resource
-app.post("/urls/:id", (req, res) => {
-  const newlongUrl = req.body.longURL;
-  const shorturl = req.params.id;
-  urlDatabase[shorturl] = newlongUrl;
-  res.redirect('/urls/');
+  if (req.session.user_id) {
+    const longUrl = req.body.longURL;
+    const shortUrl = generateRandomString();
+    const user_id = req.session.user_id;
+    urlDatabase[shortUrl] = { longURL: longUrl, userID: user_id };
+    res.redirect("/urls/" + shortUrl);
+  }
 });
 
 // GET api to redirect to the Edit page
-app.get("/urls/edit/:id", (req, res) => {
-  const shorturl = req.params.id;
-  res.redirect("/urls/" + shorturl);
+app.get("/urls/edit/:shortURL", (req, res) => {
+  if (checkLoginAndAuthorization(req, res, urlDatabase)) {
+    const shorturl = req.params.shortURL;
+    res.redirect("/urls/" + shorturl);
+  }
 });
 
 // post request to delete urls
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const urlDelete = req.params.shortURL;
-  delete urlDatabase[urlDelete];
-  res.redirect('/urls');
+  if (checkLoginAndAuthorization(req, res, urlDatabase)) {
+    const urlDelete = req.params.shortURL;
+    delete urlDatabase[urlDelete];
+    res.redirect('/urls');
+  }
 });
 
-// post request to delete urls
+// post request to edit urls
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const urlEditShortUrl = req.params.shortURL;
-  const urlEditLongUrl = req.body.longURL;
-  const existingUrl = urlDatabase[urlEditShortUrl];
-  existingUrl.longURL = urlEditLongUrl;
-  urlDatabase[urlEditShortUrl] = existingUrl;
-  res.redirect('/urls/');
+  if (checkLoginAndAuthorization(req, res, urlDatabase)) {
+    const urlEditShortUrl = req.params.shortURL;
+    const urlEditLongUrl = req.body.longURL;
+    const existingUrl = urlDatabase[urlEditShortUrl];
+    existingUrl.longURL = urlEditLongUrl;
+    urlDatabase[urlEditShortUrl] = existingUrl;
+    res.redirect('/urls/');
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    res.statusCode = 403;
+    res.send("The requested link is invalid");
+    return false;
+  }
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+
+  if (checkLoginAndAuthorization(req, res, urlDatabase)) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
+    res.render("urls_show", templateVars);
+  }
+});
+
+const checkLoginAndAuthorization = function (req, res, urlsdb) {
   const user_id = req.session.user_id;
   if (user_id) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[user_id] };
-    res.render("urls_show", templateVars);
+    if (!urlsdb[req.params.shortURL]) {
+      res.statusCode = 403;
+      res.send("The requested link is invalid");
+      return false;
+    }
+    else if (urlsdb[req.params.shortURL].userID !== user_id) {
+      res.statusCode = 403;
+      res.send("You are not authorized to access this link");
+      return false;
+    }
+    return true;
   } else {
     res.redirect('/urls/');
   }
-});
+};
 
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);
